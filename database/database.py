@@ -18,6 +18,10 @@ class Database():
     def __del__(self):
         self.con.close()
 
+    def init_status(self):
+        for username in config['usernames']:
+            self.update_status_by_username(username, '閒置中')
+
     def get_all_status(self):
         cur = self.con.cursor()
         cur.execute('SELECT * FROM manstatus')
@@ -32,7 +36,7 @@ class Database():
         except TypeError:
             return None
 
-    def insert_status_by_username(self,username, status):
+    def insert_status_by_username(self, username, status):
         cur = self.con.cursor()
         cur.execute('INSERT INTO manstatus (username, status) VALUES (?, ?)',
                     (username, status))
