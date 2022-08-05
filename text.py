@@ -5,6 +5,7 @@ help_text = """
 /help - 顯示此訊息
 /status - 顯示目前總體狀態
 /chstatus - 切換目前狀態
+/superinit - 初始化狀態 （只有管理員可以使用）
 【關於】
 開發者： @Vincent550102
 原始碼： https://github.com/Vincent550102/SITCON-maneuver-system
@@ -16,3 +17,6 @@ get_status_text = """
 status_msg_text = """
 {:<20} {:<5}
 """.format('暱稱', '狀態')
+
+change_status_text = """
+🥳已成功將 {} 的狀態從 {} 調整為 {}"""

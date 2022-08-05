@@ -7,7 +7,9 @@ with open('config.json') as (jsonfile):
 
 class Database():
     def __init__(self):
-        self.con = sqlite3.connect('database/sqlite.db')
+        self.con = sqlite3.connect(
+            'database/sqlite.db', check_same_thread=False)
+        self.cur = self.con.cursor()
         sql_init = open('database/init.sql', 'r').read()
         self.con.executescript(sql_init)
         self.con.commit()
@@ -23,33 +25,29 @@ class Database():
             self.update_status_by_username(username, '閒置中')
 
     def get_all_status(self):
-        cur = self.con.cursor()
-        cur.execute('SELECT * FROM manstatus')
-        return cur.fetchall()
+        self.cur.execute('SELECT * FROM manstatus')
+        return self.cur.fetchall()
 
     def get_status_by_username(self, username):
-        cur = self.con.cursor()
-        cur.execute(
+        self.cur.execute(
             'SELECT status FROM manstatus WHERE username=?', (username,))
         try:
-            return cur.fetchone()[0]
+            return self.cur.fetchone()[0]
         except TypeError:
             return None
 
     def insert_status_by_username(self, username, status):
-        cur = self.con.cursor()
-        cur.execute('INSERT INTO manstatus (username, status) VALUES (?, ?)',
-                    (username, status))
+        self.cur.execute('INSERT INTO manstatus (username, status) VALUES (?, ?)',
+                         (username, status))
         self.con.commit()
 
     def update_status_by_username(self, username, status):
-        cur = self.con.cursor()
-        cur.execute('UPDATE manstatus SET status=? WHERE username=?',
-                    (status, username))
+        self.cur.execute('UPDATE manstatus SET status=? WHERE username=?',
+                         (status, username))
         self.con.commit()
 
 
-if __name__ == '__main__':
-    database = Database()
-    database.update_status_by_username('Vincent550102', '守門中')
-    print(database.get_all_status())
+# if __name__ == '__main__':
+    # database = Database()
+    # database.update_status_by_username('Vincent550102', '守門中')
+    # print(database.get_all_status())
