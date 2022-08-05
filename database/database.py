@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-with open('config.json') as (jsonfile):
+with open('config.json', 'rb') as (jsonfile):
     config = json.load(jsonfile)
 
 

@@ -9,7 +9,7 @@ import prettytable
 
 load_dotenv()
 
-with open('config.json') as (jsonfile):
+with open('config.json', 'rb') as (jsonfile):
     config = json.load(jsonfile)
 
 
@@ -35,6 +35,10 @@ class TelegramBot():
         update.message.reply_text(text=help_text)
 
     def chstatus(self, update, context):
+        if update.message.from_user.username not in self.usernames:
+            update.message.reply_text(
+                text='請聯絡管理員 @Vincent550102 加上你的 username')
+            return
         update.message.reply_text(
             text=get_status_text, reply_markup=InlineKeyboardMarkup(
                 [
@@ -61,6 +65,9 @@ class TelegramBot():
 
         all_status = self.database.get_all_status()
         for status in all_status:
+            if status[0] not in self.username2nickname:
+                update.message.reply_text(
+                    text=f'請 {status[0]} 聯絡管理員 @Vincent550102 加上你的 nickname')
             table.add_row([self.username2nickname[status[0]], status[1]])
         update.message.reply_text(
             f'<pre>{table}</pre>', parse_mode=ParseMode.HTML)
