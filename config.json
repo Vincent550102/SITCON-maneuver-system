@@ -1,8 +1,14 @@
 {
-    "username": [
-        "Vincent550102"
+    "admin":[
+        "Vincent550102",
+        "yc97463"
+    ],
+    "usernames": [
+        "Vincent550102",
+        "yc97463"
     ],
     "username2nickname": {
-        "Vincent550102": "Vincent55"
+        "Vincent550102": "Vincent55",
+        "yc97463":"YC"
     }
 }

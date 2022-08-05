@@ -12,3 +12,7 @@ help_text = """
 
 get_status_text = """
 請選擇你要更換的狀態"""
+
+status_msg_text = """
+{:<20} {:<5}
+""".format('暱稱', '狀態')

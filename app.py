@@ -1,10 +1,18 @@
 from telegram.ext import Filters, Updater, CommandHandler, CallbackQueryHandler, MessageHandler
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+
 from dotenv import load_dotenv
 import os
 from text import *
+import json
+import prettytable
+
 
 load_dotenv()
+
+with open('config.json') as (jsonfile):
+    config = json.load(jsonfile)
+
 
 class TelegramBot():
     def __init__(self):
@@ -12,6 +20,8 @@ class TelegramBot():
         self.updater = Updater(token=TGBOT_TOKEN, use_context=True)
         self.dispatcher = self.updater.dispatcher
         self.support_status = ['閒置中', '守門中', 'ogg']
+        self.usernames = config['usernames']
+        self.username2nickname = config['username2nickname']
         # self.dispatcher.add_handler(
         #     MessageHandler(
         #         Filters.document,
@@ -20,11 +30,11 @@ class TelegramBot():
         #     CallbackQueryHandler(self.start_convert))
         self.dispatcher.add_handler(CommandHandler('help', self.help))
         self.dispatcher.add_handler(CommandHandler('chstatus', self.chstatus))
+        self.dispatcher.add_handler(CommandHandler('status', self.status))
         self.updater.dispatcher.add_handler(
             CallbackQueryHandler(self.chstatus_cb))
         self.updater.start_polling()
         self.updater.idle()
-       
 
     def help(self, update, context):
         update.message.reply_text(text=help_text)
@@ -33,26 +43,46 @@ class TelegramBot():
         # print(dir(update))
         # print(dir(context.bot.getChatMember(update.message.chat_id)))
         # print(context.bot.getChatMember(update.message.chat_id, update.message.from_user.id))
-        update.message.reply_text(text=get_status_text, reply_markup=InlineKeyboardMarkup(
+        # print(dir(update.message.from_user))
+        update.message.reply_text(
+            text=get_status_text, reply_markup=InlineKeyboardMarkup(
                 [
                     [
                         InlineKeyboardButton(
-                            f'{support_status}', callback_data=f'{support_status}'
+                            f'{support_status}', callback_data=f'{update.message.from_user.username}:{support_status}'
                         ) for support_status in self.support_status
                     ]
                 ]
             )
         )
+
     def chstatus_cb(self, update, context):
-        cbdata = update.callback_query.data
+
+        cbusername, cbdata = update.callback_query.data.split(":")
         # print(dir(update))
-        print(update.message)
-        update.callback_query.message.reply_text(f"讀到 {cbdata} 是從 {update.callback_query.message.from_user.username} 點的👍")
+        update.callback_query.message.reply_text(
+            f"讀到 {cbdata} 是從 {cbusername} 點的👍")
         # print(update.chat_member)
         # print(context.bot.username)
         # bot.getChatMember(update.message.chat_id)
         # update.message.reply_text(text=help_text)
 
+    def status(self, update, context):
+        table = prettytable.PrettyTable(['暱稱', '狀態'])
+        table.align['暱稱'] = 'l'
+        table.align['狀態'] = 'l'
+
+        status_msg = status_msg_text
+        tmp_sta = {
+            "Vincent550102": "閒置中",
+            "yc97463": "約會中"
+        }
+        for username in self.usernames:
+            table.add_row([self.username2nickname[username],
+                          tmp_sta[username]])
+        # print(status_msg)
+        update.message.reply_text(
+            f'<pre>{table}</pre>', parse_mode=ParseMode.HTML)
     # def trigger(self, update, context):
     #     # writing to a custom file
     #     update.message.reply_text(text=recieve_text)
@@ -89,6 +119,7 @@ class TelegramBot():
     #         document=doc_file,
     #         filename=f"{file_name}.{convert_format}",
     #     )
+
 
 if __name__ == "__main__":
     telegrambot = TelegramBot()
